@@ -1,0 +1,178 @@
+# PlantUML code for UML Class Diagrams 
+@startuml
+top to bottom direction
+
+class Field {
+    +value:str
+    +__init__(value): void
+    +__str__():str
+}
+
+class Name {
+}
+
+class Phone {
+    +__init__(value):void
+    +__repr__():str
+    -_is_valid(value): bool
+}
+class Birthday {
+    +__init__(value):void
+    +date():date <<property>>
+}
+
+Name --|> Field
+Phone --|> Field
+Birthday --|> Field
+
+class Record{
+    +name:Name
+    +phones:List<Phone>
+    +birthday:Birthday
+    + __init__(name)
+    + add_phone(phone)
+    + remove_phone(phone)
+    + edit_phone(old_phone:str, new_phone:str)
+    + find_phone(phone:str):Phone
+    + add_birthday(birthday:str)
+    + __str__():str
+}
+
+'композиція (сильний звязок) - Name створений в середины класу, тому це композицыя
+Record *-- Name
+'композиція (сильний звязок) аналогічно Phone створюється в середині калсу , і це спсиок телефонів
+Record *-- "0..*" Phone
+' композиція (сильний звязок) аналоігчно для Birthday, ми обєкт створємо в сеердині класу і він живе разом з рядком
+Record *-- Birthday
+
+class AddressBook{
+    + add_record(record:Record)
+    + find(name):Record
+    + delete(name)
+    + get_upcoming_birthdays(days=7):List<Dict>
+    + __str__():str
+    - _find_next_weekday(start_date, weekday:int):date <<staticmethod>>
+    - _adjust_for_weekend(date):date <<staticmethod>>
+}
+
+'наслідування AddressBook від UserDict
+UserDict <|-- AddressBook
+
+'композиція AddressBook складаэться з Record
+AddressBook *-- "0..*" Record
+
+enum CommandEnum {
+    ADD = "add"
+    EXIT = "exit"
+    HELLO = "hello"
+    ALL = "all"
+    CHANGE = "change"
+    PHONE = "phone"
+    ADD_BIRTHDAY = "add-birthday"
+    SHOW_BIRTHDAY = "show-birthday"
+    BIRTHDAYS = "birthdays"
+}
+
+interface Command {
+    +book: AddressBook
+    {abstract} +execute(*args, **kwargs): string
+}
+
+class CommandAdd {
+    +execute(*args, **kwargs): string
+}
+
+class CommandExit {
+    +execute(*args, **kwargs): string
+}
+
+class CommandChange {
+    +execute(*args, **kwargs): string
+}
+
+class CommandPhone {
+    +execute(*args, **kwargs): string
+}
+
+class CommandAll {
+    +execute(*args, **kwargs): string
+}
+
+class CommandAddBirthday {
+    +execute(*args, **kwargs): string
+}
+
+class CommandShowBirthday {
+    +execute(*args, **kwargs): string
+}
+
+class CommandBirthdays {
+    +execute(*args, **kwargs): string
+}
+
+'агрегація (слабкий звязок)- команда містить послання на AddressBook, але вони живуть незалжено
+Command o-- AddressBook
+Command <|.. CommandAdd
+Command <|.. CommandExit
+Command <|.. CommandChange
+Command <|.. CommandPhone
+Command <|.. CommandAll
+Command <|.. CommandAddBirthday
+Command <|.. CommandShowBirthday
+Command <|.. CommandBirthdays
+
+
+class Invoker {
+    +commands:dict<CommandEnum, Command>
+    +add_command(command_type:CommandEnum, command: Command)
+    +run_command(command_type:CommandEnum, args):str
+}
+
+'агрегація Invoker може мати 0 або більше Command (Command може жити незалежно)
+Invoker o-- "0..*" Command
+'асоціаціяя з CommandEnum, ми його використовуємо як ключ до словника
+Invoker --> CommandEnum
+
+interface View
+{
+    {abstract} +get_input(message):str
+    {abstract} +show_message(message)
+    {abstract} +show_help()
+    {abstract} +welcome()
+}
+
+class ConsoleView{
+    + get_input(message:str):str
+    + show_message(message)
+    + welcome()    
+    + show_help()
+}
+
+'реалізація абсртрактного класу
+View <|.. ConsoleView
+
+interface  Serializer {
+    {abstract} +save_data(data, filename)
+    {abstract} +load_data(self, filename):AddressBook
+}
+    
+class PikleSerializer{
+    + save_data(data, filename="addressbook.pkl")
+    + load_data(self, filename="addressbook.pkl"):AddressBook
+}
+class DataStorage {
+    +serializer:Serializer
+    +filename:str
+    + __init__(filename:str, serializer : Serializer)
+    + save_data(data)    
+    + load_data():AddressBook
+}
+
+'реалізація абсртрактного класу
+Serializer <|.. PikleSerializer 
+' агрегація DataStorage містить атрибут Serializer
+Serializer --o DataStorage
+'в середині DataStorage є залежність від AddressBook
+DataStorage ..> AddressBook
+
+@enduml

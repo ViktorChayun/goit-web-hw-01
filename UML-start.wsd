@@ -1,0 +1,58 @@
+# PlantUML code for UML Class Diagrams 
+@startuml
+top to bottom direction
+
+class Field {
+    +value:str
+    +__init__(value): void
+    +__str__():str
+}
+
+class Name {
+}
+
+class Phone {
+    +__init__(value):void
+    +__repr__():str
+    -_is_valid(value): bool
+}
+class Birthday {
+    +__init__(value):void
+    +date():date <<property>>
+}
+
+Name --|> Field
+Phone --|> Field
+Birthday --|> Field
+
+class Record{
+    +name:Name
+    +phones:List<Phone>
+    +birthday:Birthday
+    + __init__(name)
+    + add_phone(phone)
+    + remove_phone(phone)
+    + edit_phone(old_phone:str, new_phone:str)
+    + find_phone(phone:str):Phone
+    + add_birthday(birthday:str)
+    + __str__():str
+}
+
+Record --> Name         
+Record --> "0..*" Phone 
+Record --> Birthday     
+
+class AddressBook{
+    + add_record(record:Record)
+    + find(name):Record
+    + delete(name)
+    + get_upcoming_birthdays(days=7):List<Dict>
+    + __str__():str
+    - _find_next_weekday(start_date, weekday:int):date <<staticmethod>>
+    - _adjust_for_weekend(date):date <<staticmethod>>
+}
+
+UserDict <|-- AddressBook
+AddressBook o-- Record
+
+@enduml
